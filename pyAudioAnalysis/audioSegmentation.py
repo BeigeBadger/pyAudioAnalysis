@@ -622,7 +622,7 @@ def evaluateSegmentationClassificationDir(dir_name, model_name, method_name):
     print("Max Accuracy: {0:.1f}".format(100.0*numpy.array(accuracies).max()))
 
 
-def silenceRemoval(x, fs, st_win, st_step, smoothWindow=0.5, weight=0.5, plot=False):
+def silenceRemoval(x, fs, st_win, st_step, smoothWindow=1.0, weight=0.5, plot=False):
     '''
     Event Detection (silence removal)
     ARGUMENTS:
