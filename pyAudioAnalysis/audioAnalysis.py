@@ -504,7 +504,8 @@ def parse_arguments():
     silrem = tasks.add_parser("silenceRemoval",
                               help="Remove silence segments from a recording")
     silrem.add_argument("-i", "--input", required=True, help="input audio file")
-    silrem.add_argument("-o", "--output", type=str, default=".\\", help="an optional output path for files")
+    silrem.add_argument("-o", "--output", type=str, default=".\\",
+                        help="an optional output path for files")
     silrem.add_argument("-s", "--smoothing", type=float, default=1.0,
                         help="smoothing window size in seconds.")
     silrem.add_argument("-w", "--weight", type=float, default=0.5,
