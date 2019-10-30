@@ -213,16 +213,21 @@ def segmentationEvaluation(dirName, model_name, methodName):
     aS.evaluateSegmentationClassificationDir(dirName, model_name, methodName)
 
 
-def silenceRemovalWrapper(inputFile, smoothingWindow, weight):
+def silenceRemovalWrapper(inputFile, outputPath, smoothingWindow, weight):
     if not os.path.isfile(inputFile):
         raise Exception("Input audio file not found!")
+
+    if outputPath != ".\\" and not os.path.exists(outputPath):
+        raise Exception("Output path does not exist")
 
     [fs, x] = audioBasicIO.readAudioFile(inputFile)
     segmentLimits = aS.silenceRemoval(x, fs, 0.05, 0.05,
                                       smoothingWindow, weight, True)
     for i, s in enumerate(segmentLimits):
         strOut = "{0:s}_{1:.3f}-{2:.3f}.wav".format(inputFile[0:-4], s[0], s[1])
-        wavfile.write(strOut, fs, x[int(fs * s[0]):int(fs * s[1])])
+        outputFilePath = os.path.join(outputPath, strOut)
+        print(f"outputting: {outputFilePath}")
+        wavfile.write(outputFilePath, fs, x[int(fs * s[0]):int(fs * s[1])])
 
 
 def speakerDiarizationWrapper(inputFile, numSpeakers, useLDA):
@@ -499,6 +504,7 @@ def parse_arguments():
     silrem = tasks.add_parser("silenceRemoval",
                               help="Remove silence segments from a recording")
     silrem.add_argument("-i", "--input", required=True, help="input audio file")
+    silrem.add_argument("-o", "--output", type=str, default=".\\", help="an optional output path for files")
     silrem.add_argument("-s", "--smoothing", type=float, default=1.0,
                         help="smoothing window size in seconds.")
     silrem.add_argument("-w", "--weight", type=float, default=0.5,
@@ -604,7 +610,7 @@ if __name__ == "__main__":
     elif args.task == "silenceRemoval":
         # Detect non-silent segments in a WAV file and
         # output to seperate WAV files
-        silenceRemovalWrapper(args.input, args.smoothing, args.weight)
+        silenceRemovalWrapper(args.input, args.output, args.smoothing, args.weight)
     elif args.task == "speakerDiarization":
         # Perform speaker diarization on a WAV file
         speakerDiarizationWrapper(args.input, args.num, args.flsd)
