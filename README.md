@@ -29,7 +29,7 @@ pip install numpy matplotlib scipy sklearn hmmlearn simplejson eyed3 pydub
 ```
  * Clone the source of this library: 
  ```
-git clone https://github.com/tyiannak/pyAudioAnalysis.git
+git clone https://github.com/BeigeBadger/pyAudioAnalysis.git
 ```
  * Install using pip: 
  ```
