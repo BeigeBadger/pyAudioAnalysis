@@ -505,11 +505,11 @@ def parse_arguments():
                               help="Remove silence segments from a recording")
     silrem.add_argument("-i", "--input", required=True, help="input audio file")
     silrem.add_argument("-o", "--output", type=str, default=".\\",
-                        help="an optional output path for files, the default is the current directory the script is being run from")
+                        help="output directory, default is the current directory the script is being run from.")
     silrem.add_argument("-s", "--smoothing", type=float, default=1.0,
-                        help="smoothing window size in seconds.")
+                        help="smoothing window size in seconds, default is 1.0.")
     silrem.add_argument("-w", "--weight", type=float, default=0.5,
-                        help="weight factor in (0, 1)")
+                        help="weight factor in (0, 1), default is 0.5.")
 
     spkrDir = tasks.add_parser("speakerDiarization")
     spkrDir.add_argument("-i", "--input", required=True,
