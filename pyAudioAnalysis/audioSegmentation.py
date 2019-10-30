@@ -622,16 +622,18 @@ def evaluateSegmentationClassificationDir(dir_name, model_name, method_name):
     print("Max Accuracy: {0:.1f}".format(100.0*numpy.array(accuracies).max()))
 
 
-def silenceRemoval(x, fs, st_win, st_step, smoothWindow=1.0, weight=0.5, plot=False):
+def silenceRemoval(x, fs, st_win, st_step, minDuration=0.2, maxDuration=0, smoothWindow=1.0, weight=0.5, plot=False):
     '''
     Event Detection (silence removal)
     ARGUMENTS:
-         - x:                the input audio signal
-         - fs:               sampling freq
-         - st_win, st_step:    window size and step in seconds
-         - smoothWindow:     (optinal) smooth window (in seconds)
-         - weight:           (optinal) weight factor (0 < weight < 1) the higher, the more strict
-         - plot:             (optinal) True if results are to be plotted
+         - x:                   the input audio signal
+         - fs:                  sampling freq
+         - st_win, st_step:     window size and step in seconds
+         - minDuration:         (optional) minium duration in seconds of segments to keep
+         - maxDuration:         (optional) maximum duration in seconds of segments to keep (0 is no limit)
+         - smoothWindow:        (optional) smooth window (in seconds)
+         - weight:              (optional) weight factor (0 < weight < 1) the higher, the more strict
+         - plot:                (optional) True if results are to be plotted
     RETURNS:
          - seg_limits:    list of segment limits in seconds (e.g [[0.1, 0.9], [1.4, 3.0]] means that
                     the resulting segments are (0.1 - 0.9) seconds and (1.4, 3.0) seconds
@@ -709,11 +711,10 @@ def silenceRemoval(x, fs, st_win, st_step, smoothWindow=1.0, weight=0.5, plot=Fa
         seg_limits.append([cur_cluster[0] * st_step,
                            cur_cluster[-1] * st_step])
 
-    # Step 5: Post process: remove very small segments:
-    min_dur = 0.2
+    # Step 5: Post process: remove segments that are outside the min and max segment bounds:
     seg_limits_2 = []
     for s in seg_limits:
-        if s[1] - s[0] > min_dur:
+        if s[1] - s[0] > minDuration and ((maxDuration == None or maxDuration == 0) or (s[1] - s[0] < maxDuration)):
             seg_limits_2.append(s)
     seg_limits = seg_limits_2
 

@@ -6,7 +6,7 @@ import glob
 import matplotlib.pyplot as plt
 from pyAudioAnalysis import audioFeatureExtraction as aF
 from pyAudioAnalysis import audioTrainTest as aT
-from pyAudioAnalysis import audioSegmentation as aS
+import audioSegmentation as aS
 from pyAudioAnalysis import audioVisualization as aV
 from pyAudioAnalysis import audioBasicIO
 import scipy.io.wavfile as wavfile
@@ -213,7 +213,7 @@ def segmentationEvaluation(dirName, model_name, methodName):
     aS.evaluateSegmentationClassificationDir(dirName, model_name, methodName)
 
 
-def silenceRemovalWrapper(inputFile, outputPath, smoothingWindow, weight):
+def silenceRemovalWrapper(inputFile, outputPath, minDuration, maxDuration, smoothingWindow, weight):
     if not os.path.isfile(inputFile):
         raise Exception("Input audio file not found!")
 
@@ -221,8 +221,8 @@ def silenceRemovalWrapper(inputFile, outputPath, smoothingWindow, weight):
         raise Exception("Output path does not exist")
 
     [fs, x] = audioBasicIO.readAudioFile(inputFile)
-    segmentLimits = aS.silenceRemoval(x, fs, 0.05, 0.05,
-                                      smoothingWindow, weight, True)
+
+    segmentLimits = aS.silenceRemoval(x, fs, 0.05, 0.05, minDuration, maxDuration, smoothingWindow, weight, True)
     for i, s in enumerate(segmentLimits):
         strOut = "{0:s}_{1:.3f}-{2:.3f}.wav".format(inputFile[0:-4], s[0], s[1])
         outputFilePath = os.path.join(outputPath, strOut)
@@ -510,6 +510,10 @@ def parse_arguments():
                         help="smoothing window size in seconds, default is 1.0.")
     silrem.add_argument("-w", "--weight", type=float, default=0.5,
                         help="weight factor in (0, 1), default is 0.5.")
+    silrem.add_argument("-n", "--minDuration", type=float,
+                        help="minimum duration in seconds for segments to keep, the default is 0.2 seconds")
+    silrem.add_argument("-x", "--maxDuration", type=float,
+                        help="maximum duration in seconds of segments to keep, the default is 0 seconds (no limit)")
 
     spkrDir = tasks.add_parser("speakerDiarization")
     spkrDir.add_argument("-i", "--input", required=True,
@@ -611,7 +615,7 @@ if __name__ == "__main__":
     elif args.task == "silenceRemoval":
         # Detect non-silent segments in a WAV file and
         # output to seperate WAV files
-        silenceRemovalWrapper(args.input, args.output, args.smoothing, args.weight)
+        silenceRemovalWrapper(args.input, args.output, args.minDuration, args.maxDuration, args.smoothing, args.weight)
     elif args.task == "speakerDiarization":
         # Perform speaker diarization on a WAV file
         speakerDiarizationWrapper(args.input, args.num, args.flsd)
